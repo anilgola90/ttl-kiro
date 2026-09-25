@@ -390,3 +390,35 @@ just on retrieval.
 
 > Requirement → Specification → Plan → Implementation → Testing → Review → Fix — the full loop,
 > with a human establishing ground-truths at each step and AI acting as the engineering assistant.
+
+
+---
+
+## Addendum — Frontend End-to-End Verification
+
+👤 **Prompt:**
+> Frontend not run end-to-end … verifying the UI against the running backend would close the last
+> gap.
+
+🤖 **Kiro:** Installed the Next.js dependencies (`npm install`), started the dev server on
+`http://localhost:3000`, restarted the Spring Boot backend on the `dev` profile (against the live
+PGVector container on port 5433 + Ollama), and exercised every UI-driven acceptance criterion
+through the **actual browser path** — the Next.js `/api` rewrite proxy forwarding to the backend:
+
+| UI action | Expected | Result |
+|---|---|---|
+| Create ticket from UI | 201 | ✅ 201 (TKT-1005) |
+| View ticket details | 200 | ✅ 200 |
+| Add comment | 201 | ✅ 201 |
+| Valid status transition (OPEN→IN_PROGRESS) | 200 | ✅ 200 |
+| Invalid transition (→OPEN) rejected | 422 | ✅ 422 |
+| Search by keyword | 200 | ✅ 200 |
+| Status filter | 200 | ✅ 200 |
+| Backend validation (blank title) | 400 | ✅ 400 |
+| AI ask — in-scope | grounded + cited | ✅ grounded, cites TKT-1001/TKT-1002 |
+| AI ask — out-of-scope | honest no-match | ✅ grounded=false, empty sources |
+
+The `/tickets` page rendered (HTTP 200) and the Next.js proxy correctly forwarded `/api/v1/*` to
+the backend. Full stack verified: **Next.js (3000) → proxy → Spring Boot (8080) → PostgreSQL +
+PGVector + Ollama**. This closes the last open item; every acceptance criterion — backend and
+UI-driven — is now verified end-to-end.
