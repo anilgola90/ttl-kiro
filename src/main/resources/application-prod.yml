@@ -1,0 +1,23 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+  ai:
+    openai:
+      embedding:
+        options:
+          model: text-embedding-3-small
+      chat:
+        options:
+          model: gpt-4o-mini
+
+app:
+  ai:
+    embedding:
+      provider: openai
+      model: text-embedding-3-small
+      dimensions: 1536
+    generation:
+      model: gpt-4o-mini

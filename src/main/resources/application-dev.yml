@@ -1,0 +1,47 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ticketdb
+    username: postgres
+    password: ${DB_PASSWORD:postgres}
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  ai:
+    # Both the OpenAI and Ollama starters are on the classpath. In dev we use Ollama
+    # exclusively, so select it as the sole chat/embedding provider — otherwise two
+    # ChatModel/EmbeddingModel beans are created and PGVector cannot pick one.
+    model:
+      chat: ollama
+      embedding: ollama
+    ollama:
+      base-url: http://localhost:11434
+      embedding:
+        model: nomic-embed-text
+      chat:
+        model: llama3.2
+    vectorstore:
+      pgvector:
+        # nomic-embed-text produces 768-dimensional vectors; the PGVector table must match.
+        dimensions: 768
+        index-type: HNSW
+        distance-type: COSINE_DISTANCE
+        initialize-schema: true
+
+app:
+  ai:
+    embedding:
+      provider: ollama
+      model: nomic-embed-text
+      ollama-base-url: http://localhost:11434
+      dimensions: 768
+    retrieval:
+      # nomic-embed-text cosine scores run lower than OpenAI's; a 0.75 threshold (the base
+      # default tuned for text-embedding-3-small) filters out genuinely relevant chunks.
+      # Tuned down for the local Ollama embedding model. See docs/ai-mistakes.md.
+      similarity-threshold: 0.3
+    generation:
+      model: llama3.2

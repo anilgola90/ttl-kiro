@@ -1,0 +1,123 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.4.1'
+	id 'io.spring.dependency-management' version '1.1.7'
+	id 'jacoco'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+repositories {
+	mavenCentral()
+	// Milestone repo — required for Spring AI releases not yet in Maven Central
+	maven { url = 'https://repo.spring.io/milestone' }
+}
+
+dependencyManagement {
+	imports {
+		// Spring AI BOM — aligns all Spring AI starter versions
+		mavenBom 'org.springframework.ai:spring-ai-bom:1.0.0'
+		// Testcontainers BOM — aligns testcontainers module versions
+		mavenBom 'org.testcontainers:testcontainers-bom:1.20.4'
+	}
+}
+
+dependencies {
+	// ── Core Spring Boot starters ──────────────────────────────────────────────
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// ── Database migrations & driver ─────────────────────────────────────────────
+	implementation 'org.flywaydb:flyway-core'
+	implementation 'org.flywaydb:flyway-database-postgresql'
+	runtimeOnly    'org.postgresql:postgresql'
+
+	// ── Spring AI (models + vector store) ────────────────────────────────────────
+	implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+	implementation 'org.springframework.ai:spring-ai-starter-model-ollama'
+	implementation 'org.springframework.ai:spring-ai-starter-vector-store-pgvector'
+
+	// ── Lombok ─────────────────────────────────────────────────────────────────
+	compileOnly         'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// ── OpenAPI / Swagger UI ─────────────────────────────────────────────────────
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
+
+	// ── Dev tooling ──────────────────────────────────────────────────────────────
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	// ── Test dependencies ────────────────────────────────────────────────────────
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+	testImplementation 'org.testcontainers:postgresql'
+	testImplementation 'org.testcontainers:junit-jupiter'
+
+	// H2 in-memory database for slice and unit tests (Requirement 15.2)
+	testImplementation 'com.h2database:h2'
+
+	// jqwik property-based testing
+	testImplementation 'net.jqwik:jqwik:1.9.2'
+
+	// Lombok in test scope
+	testCompileOnly         'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+	useJUnitPlatform {
+		// Ensure jqwik engine runs alongside JUnit 5
+		includeEngines 'junit-jupiter', 'jqwik'
+	}
+}
+
+// ── JaCoCo coverage enforcement ───────────────────────────────────────────────
+jacoco {
+	toolVersion = '0.8.12'
+}
+
+jacocoTestReport {
+	dependsOn test
+	reports {
+		xml.required  = true
+		html.required = true
+	}
+}
+
+jacocoTestCoverageVerification {
+	dependsOn jacocoTestReport
+	violationRules {
+		rule {
+			element = 'CLASS'
+			// State machine: 100% branch coverage required
+			includes = ['com.example.kirotest.service.TicketStateMachine']
+			limit {
+				counter = 'BRANCH'
+				value   = 'COVEREDRATIO'
+				minimum = 1.0
+			}
+		}
+		rule {
+			element = 'PACKAGE'
+			// Service layer: ≥ 90% line coverage
+			includes = ['com.example.kirotest.service']
+			limit {
+				counter = 'LINE'
+				value   = 'COVEREDRATIO'
+				minimum = 0.90
+			}
+		}
+	}
+}
+
+check.dependsOn jacocoTestCoverageVerification

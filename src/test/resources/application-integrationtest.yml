@@ -1,0 +1,61 @@
+# Integration-test profile: runs against a real PostgreSQL + pgvector instance
+# provisioned by Testcontainers. Datasource url/username/password are injected at
+# runtime via @DynamicPropertySource in AbstractIntegrationTest, so they are omitted here.
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      # Flyway owns the schema; Hibernate only validates it matches the entities.
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  data:
+    web:
+      pageable:
+        default-page-size: 20
+        max-page-size: 100
+
+  ai:
+    # Select a single model provider so exactly one ChatModel / EmbeddingModel bean is
+    # created (both the OpenAI and Ollama starters are on the classpath). The integration
+    # tests replace these beans with @MockitoBean mocks, which require an unambiguous target.
+    model:
+      chat: openai
+      embedding: openai
+    openai:
+      # Placeholder key — the mocked beans mean OpenAI is never actually called. RAG tests
+      # drive the mocked ChatModel/VectorStore directly.
+      api-key: test-key-not-used
+    ollama:
+      init:
+        pull-model-strategy: never
+    vectorstore:
+      # Use the in-memory SimpleVectorStore for non-RAG tests to avoid external calls.
+      simple:
+        enabled: true
+
+app:
+  ai:
+    embedding:
+      provider: openai
+      model: text-embedding-3-small
+      ollama-base-url: http://localhost:11434
+      dimensions: 1536
+    retrieval:
+      top-k: 5
+      similarity-threshold: 0.75
+    generation:
+      model: gpt-4o-mini
+      temperature: 0.0
+
+  cors:
+    allowed-origins: http://localhost:3000

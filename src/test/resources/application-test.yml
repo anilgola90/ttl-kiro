@@ -1,0 +1,53 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+    show-sql: true
+
+  flyway:
+    enabled: false
+
+  h2:
+    console:
+      enabled: false
+
+  ai:
+    # Select a single model provider for tests so exactly one ChatModel / EmbeddingModel
+    # bean is created (both the OpenAI and Ollama starters are on the classpath).
+    model:
+      chat: openai
+      embedding: openai
+    openai:
+      api-key: test-key-not-used
+    ollama:
+      init:
+        pull-model-strategy: never
+    vectorstore:
+      simple:
+        enabled: true
+
+app:
+  ai:
+    embedding:
+      provider: openai
+      model: text-embedding-3-small
+      ollama-base-url: http://localhost:11434
+      dimensions: 1536
+    retrieval:
+      top-k: 5
+      similarity-threshold: 0.75
+    generation:
+      model: gpt-4o-mini
+      temperature: 0.0
+
+  cors:
+    allowed-origins: http://localhost:3000
