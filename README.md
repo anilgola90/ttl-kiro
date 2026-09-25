@@ -21,7 +21,8 @@ The system design is documented under the spec folder. Start here to understand 
 
 Cross-cutting engineering conventions live in the steering folder:
 
-- [`.kiro/steering/`](.kiro/steering/) — `java-springboot.md`, `api-standards.md`, `rag-vector-store.md`, `testing.md`, and `documentation.md`
+- [`.kiro/steering/`](.kiro/steering/) — `java-springboot.md`, `api-standards.md`, `rag-vector-store.md`, `testing.md`, `documentation.md`, and `token-optimization.md`
+- [`.kiro/steering/token-optimization.md`](.kiro/steering/token-optimization.md) — token-usage strategy: context-optimizing MCP servers (`.kiro/settings/mcp.json`), prompt caching of the static system prompt, and context-minimizing conventions
 
 Architecture Decision Records are under [`docs/adr/`](docs/adr/) (e.g. embedding model selection).
 

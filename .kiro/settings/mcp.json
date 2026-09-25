@@ -1,0 +1,39 @@
+{
+  "mcpServers": {
+    "codebase-memory": {
+      "command": "uvx",
+      "args": ["codebase-memory-mcp@latest"],
+      "env": {
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      },
+      "disabled": true,
+      "autoApprove": [
+        "memory_search",
+        "memory_get"
+      ],
+      "__comment": "Persistent codebase memory: caches file summaries + symbol graphs so the assistant retrieves compact context instead of re-reading whole files each turn. Enable once installed (`uvx codebase-memory-mcp` or the team's chosen build)."
+    },
+    "graphify": {
+      "command": "uvx",
+      "args": ["graphify-mcp@latest"],
+      "env": {
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      },
+      "disabled": true,
+      "autoApprove": [
+        "graph_query"
+      ],
+      "__comment": "Builds a code dependency/symbol graph. The assistant queries the graph (a few hundred tokens) instead of loading many files to understand how components relate."
+    },
+    "caveman": {
+      "command": "uvx",
+      "args": ["caveman-mcp@latest"],
+      "env": {
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      },
+      "disabled": true,
+      "autoApprove": [],
+      "__comment": "Aggressive context compaction / retrieval helper. Returns minimal relevant slices of files on demand. Kept disabled by default; enable per session when working in large modules."
+    }
+  }
+}
