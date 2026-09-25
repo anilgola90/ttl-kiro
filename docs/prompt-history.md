@@ -7,7 +7,7 @@ Record of every prompt given to the AI assistant during development of the Suppo
 ## [2026-09-24 00:00] — Project Setup: Create steering files
 
 **Prompt:**
-> ATL / TL Assignment — Build an AI-Powered Support Ticket Management System. First of all create my agents (steering files, skills, commands).
+> Build an AI-Powered Support Ticket Management System. First of all create my agents (steering files, skills, commands).
 
 **Summary of AI response:** Created all steering files covering Java/Spring Boot guidelines, testing, API standards, RAG/vector store guidelines, documentation standards, and command files for review-code, review-spec, generate-tests, and review-rag-output. Also created record-prompt skill and docs scaffold.
 
